@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: mysql_container
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ""  # Empty password for root
+      MYSQL_DATABASE: todo_db
+      MYSQL_USER: root
+      MYSQL_PASSWORD: ""  # No password for the user
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  web:
+    build: .
+    container_name: django_app
+    command: gunicorn To_Do_App_Project.wsgi:application --bind 0.0.0.0:8000
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      DB_NAME: todo_db
+      DB_USER: root
+      DB_PASSWORD: ""  # No password
+      DB_HOST: db
+      DB_PORT: 3306
+
+volumes:
+  mysql_data:
